@@ -13,6 +13,7 @@ const ApplicationForm = ({ jobId }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!name || !email || !resume) {
       setError("All fields including resume are required");
       return;
@@ -25,7 +26,7 @@ const ApplicationForm = ({ jobId }) => {
       formData.append("resume", resume);
 
       await axios.post(
-        `http://localhost:5000/api/applications/${jobId}/apply`,
+        `https://job-portal-backend-deploy.onrender.com/api/applications/${jobId}/apply`,
         formData,
         {
           headers: {
@@ -47,8 +48,10 @@ const ApplicationForm = ({ jobId }) => {
   return (
     <div className="application-form-container">
       <h3>Apply for this Job</h3>
+
       {error && <p className="error">{error}</p>}
       {success && <p style={{ color: "green" }}>{success}</p>}
+
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -57,6 +60,7 @@ const ApplicationForm = ({ jobId }) => {
           onChange={(e) => setName(e.target.value)}
           required
         />
+
         <input
           type="email"
           placeholder="Your Email"
@@ -64,12 +68,14 @@ const ApplicationForm = ({ jobId }) => {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+
         <input
           type="file"
           accept=".pdf,.doc,.docx"
           onChange={(e) => setResume(e.target.files[0])}
           required
         />
+
         <button type="submit" className="btn">Submit Application</button>
       </form>
     </div>

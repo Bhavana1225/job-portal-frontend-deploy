@@ -23,17 +23,19 @@ const Register = () => {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register", {
+      await axios.post("https://job-portal-backend-deploy.onrender.com/api/auth/register", {
         name,
         email,
         password,
         role,
       });
+
       setSuccess("Registration successful! You can now login.");
       setName("");
       setEmail("");
       setPassword("");
       setRole("");
+
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
@@ -45,6 +47,7 @@ const Register = () => {
       <h2>Register</h2>
       {error && <p className="error">{error}</p>}
       {success && <p style={{ color: "green" }}>{success}</p>}
+
       <form onSubmit={handleRegister} className="auth-form">
         <div>
           <input
@@ -55,6 +58,7 @@ const Register = () => {
             required
           />
         </div>
+
         <div>
           <input
             type="email"
@@ -64,6 +68,7 @@ const Register = () => {
             required
           />
         </div>
+
         <div>
           <input
             type="password"
@@ -73,6 +78,7 @@ const Register = () => {
             required
           />
         </div>
+
         <div>
           <select value={role} onChange={(e) => setRole(e.target.value)} required>
             <option value="">Select Role</option>
@@ -80,8 +86,10 @@ const Register = () => {
             <option value="employer">Employer</option>
           </select>
         </div>
+
         <button type="submit" className="btn">Register</button>
       </form>
+
       <p className="auth-footer">
         Already have an account? <Link to="/login">Login here</Link>
       </p>

@@ -23,9 +23,10 @@ const Login = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "https://job-portal-backend-deploy.onrender.com/api/auth/login",
         { email, password, role }
       );
+
       const userData = res.data;
 
       if (!userData.token) {
@@ -35,6 +36,7 @@ const Login = () => {
 
       setUser(userData);
       setToken(userData.token);
+
       localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("token", userData.token);
 

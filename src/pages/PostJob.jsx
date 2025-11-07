@@ -19,24 +19,31 @@ const PostJob = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!title || !description) {
       setError("Title and description are required");
       return;
     }
+
     try {
       await axios.post(
-        "http://localhost:5000/api/jobs",
+        "https://job-portal-backend-deploy.onrender.com/api/jobs",
         {
           title,
           description,
-          requirements: requirements.split(",").map((r) => r.trim()),
+          requirements: requirements
+            ? requirements.split(",").map((r) => r.trim())
+            : [],
           location,
           company,
           type,
           deadline,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
+
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
@@ -48,6 +55,7 @@ const PostJob = () => {
     <div className="postjob-container">
       <h2>Post a New Job</h2>
       {error && <p className="error">{error}</p>}
+
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -56,43 +64,51 @@ const PostJob = () => {
           onChange={(e) => setTitle(e.target.value)}
           required
         />
+
         <textarea
           placeholder="Job Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
         />
+
         <input
           type="text"
           placeholder="Requirements (comma separated)"
           value={requirements}
           onChange={(e) => setRequirements(e.target.value)}
         />
+
         <input
           type="text"
           placeholder="Location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
         />
+
         <input
           type="text"
           placeholder="Company"
           value={company}
           onChange={(e) => setCompany(e.target.value)}
         />
+
         <select value={type} onChange={(e) => setType(e.target.value)}>
           <option value="Full-time">Full-time</option>
           <option value="Part-time">Part-time</option>
           <option value="Internship">Internship</option>
           <option value="Contract">Contract</option>
         </select>
+
         <input
           type="date"
           value={deadline}
           onChange={(e) => setDeadline(e.target.value)}
         />
+
         <button type="submit" className="btn">Post Job</button>
       </form>
+
       <div style={{ textAlign: "center", marginTop: "10px" }}>
         <Link to="/dashboard">
           <button className="btn">Back to Dashboard</button>

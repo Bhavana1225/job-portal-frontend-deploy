@@ -38,7 +38,7 @@ const Profile = () => {
       };
 
       const { data } = await axios.put(
-        "http://localhost:5000/api/users/profile",
+        "https://job-portal-backend-deploy.onrender.com/api/users/profile",
         { name, email, contact, skills, experience, education },
         config
       );

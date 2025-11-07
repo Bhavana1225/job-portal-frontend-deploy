@@ -15,12 +15,17 @@ const JobDetails = () => {
   useEffect(() => {
     const fetchJob = async () => {
       try {
+        // Validate MongoDB ObjectId format
         if (!/^[0-9a-fA-F]{24}$/.test(id)) {
           setError("Invalid job ID.");
           setJob(null);
           return;
         }
-        const response = await axios.get(`http://localhost:5000/api/jobs/${id}`);
+
+        const response = await axios.get(
+          `https://job-portal-backend-deploy.onrender.com/api/jobs/${id}`
+        );
+
         if (response.data && response.data._id) {
           setJob(response.data);
         } else {
@@ -34,6 +39,7 @@ const JobDetails = () => {
         else setError("Error fetching job.");
       }
     };
+
     fetchJob();
   }, [id]);
 
@@ -41,7 +47,9 @@ const JobDetails = () => {
     return (
       <div className="job-details-container">
         <p style={{ color: "red" }}>{error}</p>
-        <Link to="/"><button className="btn">Back to Jobs</button></Link>
+        <Link to="/">
+          <button className="btn">Back to Jobs</button>
+        </Link>
       </div>
     );
   }
@@ -56,7 +64,10 @@ const JobDetails = () => {
       <p><strong>Type:</strong> {job.type || "Not specified"}</p>
       <p><strong>Deadline:</strong> {job.deadline ? new Date(job.deadline).toLocaleDateString() : "Not specified"}</p>
       <p><strong>Description:</strong> {job.description || "Not specified"}</p>
-      <p><strong>Requirements:</strong> {Array.isArray(job.requirements) ? job.requirements.join(", ") : job.requirements || "Not specified"}</p>
+      <p><strong>Requirements:</strong> 
+        {Array.isArray(job.requirements) ? job.requirements.join(", ") : job.requirements || "Not specified"}
+      </p>
+
       {job.salary && <p><strong>Salary:</strong> {job.salary}</p>}
       <p><strong>Status:</strong> {job.filled ? "Closed" : "Open"}</p>
 
@@ -65,9 +76,13 @@ const JobDetails = () => {
       ) : (
         <>
           {user && !showForm && (
-            <button onClick={() => setShowForm(true)} className="btn">Apply to Job</button>
+            <button onClick={() => setShowForm(true)} className="btn">
+              Apply to Job
+            </button>
           )}
+
           {user && showForm && <ApplicationForm jobId={job._id} token={token} />}
+
           {!user && (
             <p>
               <Link to="/login">Login</Link> to apply for this job.
@@ -76,7 +91,11 @@ const JobDetails = () => {
         </>
       )}
 
-      <Link to="/"><button className="btn" style={{ marginTop: "10px" }}>Back to Jobs</button></Link>
+      <Link to="/">
+        <button className="btn" style={{ marginTop: "10px" }}>
+          Back to Jobs
+        </button>
+      </Link>
     </div>
   );
 };

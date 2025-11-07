@@ -12,14 +12,18 @@ const ApplicationsDashboard = () => {
   const [editingApp, setEditingApp] = useState(null);
   const [newResume, setNewResume] = useState(null);
 
-  // Fetch user's applications
+  // ✅ Fetch user's applications from backend
   const fetchApplications = async () => {
     if (!user || !token) return;
 
     try {
-      const res = await axios.get("http://localhost:5000/api/applications/user", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        `http://localhost:5000/api/applications/user/${user._id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
       setApplications(res.data || []);
     } catch (err) {
       console.error("Error fetching applications:", err);
@@ -33,14 +37,16 @@ const ApplicationsDashboard = () => {
     fetchApplications();
   }, [user, token]);
 
-  // Delete application
+  // ✅ Delete application
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this application?")) return;
+    if (!window.confirm("Are you sure you want to delete this application?"))
+      return;
 
     try {
       await axios.delete(`http://localhost:5000/api/applications/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       setApplications(applications.filter((app) => app._id !== id));
     } catch (err) {
       console.error("Error deleting application:", err);
@@ -48,7 +54,7 @@ const ApplicationsDashboard = () => {
     }
   };
 
-  // Edit application
+  // ✅ Edit application
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!editingApp) return;
@@ -62,12 +68,20 @@ const ApplicationsDashboard = () => {
       const res = await axios.put(
         `http://localhost:5000/api/applications/${editingApp._id}`,
         formData,
-        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
 
-      setApplications(applications.map((app) =>
-        app._id === editingApp._id ? res.data.application : app
-      ));
+      setApplications(
+        applications.map((app) =>
+          app._id === editingApp._id ? res.data.application : app
+        )
+      );
+
       setEditingApp(null);
       setNewResume(null);
     } catch (err) {
@@ -113,11 +127,20 @@ const ApplicationsDashboard = () => {
                     >
                       View Resume
                     </a>
-                  ) : "N/A"}
+                  ) : (
+                    "N/A"
+                  )}
                 </td>
                 <td>
-                  <button onClick={() => setEditingApp(app)} className="btn">Edit</button>
-                  <button onClick={() => handleDelete(app._id)} className="btn">Delete</button>
+                  <button onClick={() => setEditingApp(app)} className="btn">
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(app._id)}
+                    className="btn"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
@@ -125,7 +148,7 @@ const ApplicationsDashboard = () => {
         </table>
       )}
 
-      {/* Edit Application Modal / Form */}
+      {/* ✅ Edit Application Form */}
       {editingApp && (
         <div className="edit-application-form" style={{ marginTop: "20px" }}>
           <h3>Edit Application for: {editingApp.job?.title}</h3>
@@ -135,21 +158,27 @@ const ApplicationsDashboard = () => {
               <input
                 type="text"
                 value={editingApp.name}
-                onChange={(e) => setEditingApp({ ...editingApp, name: e.target.value })}
+                onChange={(e) =>
+                  setEditingApp({ ...editingApp, name: e.target.value })
+                }
                 required
                 style={{ width: "100%", padding: "8px", marginTop: "5px" }}
               />
             </div>
+
             <div style={{ marginBottom: "10px" }}>
               <label>Email</label>
               <input
                 type="email"
                 value={editingApp.email}
-                onChange={(e) => setEditingApp({ ...editingApp, email: e.target.value })}
+                onChange={(e) =>
+                  setEditingApp({ ...editingApp, email: e.target.value })
+                }
                 required
                 style={{ width: "100%", padding: "8px", marginTop: "5px" }}
               />
             </div>
+
             <div style={{ marginBottom: "10px" }}>
               <label>Update Resume (optional)</label>
               <input
@@ -159,14 +188,25 @@ const ApplicationsDashboard = () => {
                 style={{ width: "100%", padding: "8px", marginTop: "5px" }}
               />
             </div>
-            <button type="submit" className="btn" style={{ marginRight: "10px" }}>Update</button>
-            <button type="button" onClick={() => setEditingApp(null)} className="btn">Cancel</button>
+
+            <button type="submit" className="btn" style={{ marginRight: "10px" }}>
+              Update
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditingApp(null)}
+              className="btn"
+            >
+              Cancel
+            </button>
           </form>
         </div>
       )}
 
       <Link to="/">
-        <button className="btn" style={{ marginTop: "20px" }}>Back to Jobs</button>
+        <button className="btn" style={{ marginTop: "20px" }}>
+          Back to Jobs
+        </button>
       </Link>
     </div>
   );
