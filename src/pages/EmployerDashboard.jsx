@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; 
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useUser } from "../context/UserContext";
 import "../styles/style.css";
+
+// ✅ Use your backend Render URL
+const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
 
 const Dashboard = () => {
   const { user, token } = useUser();
@@ -14,7 +17,7 @@ const Dashboard = () => {
   const fetchJobs = async () => {
     if (!user || !token) return;
     try {
-      const res = await axios.get("http://localhost:5000/api/jobs/employer", {
+      const res = await axios.get(`${API_URL}/jobs/employer`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setJobs(res.data || []);
@@ -33,7 +36,7 @@ const Dashboard = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this job?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/jobs/${id}`, {
+      await axios.delete(`${API_URL}/jobs/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setJobs(jobs.filter((job) => job._id !== id));
@@ -47,7 +50,7 @@ const Dashboard = () => {
     setUpdatingId(id);
     try {
       const res = await axios.patch(
-        `http://localhost:5000/api/jobs/${id}/filled`,
+        `${API_URL}/jobs/${id}/filled`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

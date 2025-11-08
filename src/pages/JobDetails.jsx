@@ -5,6 +5,9 @@ import ApplicationForm from "./ApplicationForm";
 import { useUser } from "../context/UserContext";
 import "../styles/style.css";
 
+// ✅ Use your backend Render URL
+const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
+
 const JobDetails = () => {
   const { id } = useParams();
   const { user, token } = useUser();
@@ -22,9 +25,7 @@ const JobDetails = () => {
           return;
         }
 
-        const response = await axios.get(
-          `https://job-portal-backend-deploy.onrender.com/api/jobs/${id}`
-        );
+        const response = await axios.get(`${API_URL}/jobs/${id}`);
 
         if (response.data && response.data._id) {
           setJob(response.data);

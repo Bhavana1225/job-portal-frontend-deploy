@@ -3,6 +3,9 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/style.css";
 
+// ✅ Use Render environment variable
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Register = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -23,20 +26,24 @@ const Register = () => {
     }
 
     try {
-      await axios.post("https://job-portal-backend-deploy.onrender.com/api/auth/register", {
+      const res = await axios.post(`${API_URL}/auth/register`, {
         name,
         email,
         password,
         role,
       });
 
-      setSuccess("Registration successful! You can now login.");
-      setName("");
-      setEmail("");
-      setPassword("");
-      setRole("");
+      if (res.data?._id) {
+        setSuccess("Registration successful! Redirecting to login...");
+        setName("");
+        setEmail("");
+        setPassword("");
+        setRole("");
 
-      setTimeout(() => navigate("/login"), 1500);
+        setTimeout(() => navigate("/login"), 1500);
+      } else {
+        setError("Registration failed. Please try again.");
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
     }

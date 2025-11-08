@@ -16,7 +16,9 @@ function Homepage() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/jobs");
+        const res = await axios.get(
+          "https://job-portal-backend-deploy.onrender.com/api/jobs"
+        );
         setJobs(res.data || []);
       } catch (err) {
         console.error(err);

@@ -4,6 +4,9 @@ import { useUser } from "../context/UserContext";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/style.css";
 
+// ✅ Use Render environment variable
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Login = () => {
   const { setUser, setToken } = useUser();
   const navigate = useNavigate();
@@ -22,10 +25,11 @@ const Login = () => {
     }
 
     try {
-      const res = await axios.post(
-        "https://job-portal-backend-deploy.onrender.com/api/auth/login",
-        { email, password, role }
-      );
+      const res = await axios.post(`${API_URL}/auth/login`, {
+        email,
+        password,
+        role,
+      });
 
       const userData = res.data;
 
@@ -50,6 +54,7 @@ const Login = () => {
     <div className="auth-container">
       <h2>Login</h2>
       {error && <p className="error">{error}</p>}
+
       <form onSubmit={handleLogin} className="auth-form">
         <div>
           <input
@@ -60,6 +65,7 @@ const Login = () => {
             required
           />
         </div>
+
         <div>
           <input
             type="password"
@@ -69,6 +75,7 @@ const Login = () => {
             required
           />
         </div>
+
         <div>
           <select value={role} onChange={(e) => setRole(e.target.value)} required>
             <option value="">Select Role</option>
@@ -76,8 +83,10 @@ const Login = () => {
             <option value="employer">Employer</option>
           </select>
         </div>
+
         <button type="submit" className="btn">Login</button>
       </form>
+
       <p className="auth-footer">
         Don't have an account? <Link to="/register">Register here</Link>
       </p>

@@ -3,6 +3,9 @@ import axios from "axios";
 import { useUser } from "../context/UserContext";
 import "../styles/style.css";
 
+// ✅ Backend API URL
+const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
+
 const Profile = () => {
   const { user, token, setUser } = useUser();
   const [name, setName] = useState("");
@@ -38,7 +41,7 @@ const Profile = () => {
       };
 
       const { data } = await axios.put(
-        "https://job-portal-backend-deploy.onrender.com/api/users/profile",
+        `${API_URL}/users/profile`,
         { name, email, contact, skills, experience, education },
         config
       );
@@ -47,6 +50,7 @@ const Profile = () => {
       localStorage.setItem("user", JSON.stringify(data));
       setSuccess("Profile updated successfully!");
     } catch (err) {
+      console.error(err);
       setError(err.response?.data?.message || "Failed to update profile");
     }
   };

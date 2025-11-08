@@ -25,7 +25,7 @@ function App() {
 
       <main>
         <Routes>
-          {/* Public routes */}
+          {/* Public Routes */}
           <Route path="/" element={<Homepage />} />
           <Route path="/jobs" element={<JobList />} />
           <Route path="/jobs/:id" element={<JobDetails />} />
@@ -33,10 +33,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Profile route */}
+          {/* Profile Route */}
           <Route path="/profile" element={user ? <Profile /> : <Login />} />
 
-          {/* Employer routes */}
+          {/* Employer Routes */}
           {user?.role === "employer" && (
             <>
               <Route path="/dashboard" element={<Dashboard />} />
@@ -45,7 +45,7 @@ function App() {
             </>
           )}
 
-          {/* Jobseeker routes */}
+          {/* Jobseeker Routes */}
           {user?.role === "jobseeker" && (
             <>
               <Route path="/dashboard" element={<Dashboard />} />

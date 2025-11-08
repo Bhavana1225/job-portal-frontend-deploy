@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import "../styles/style.css";
 
+// ✅ Use your backend Render URL
+const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
+
 const JobList = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +13,7 @@ const JobList = () => {
 
   const fetchJobs = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/jobs");
+      const response = await axios.get(`${API_URL}/jobs`);
       setJobs(response.data || []);
       setError("");
     } catch (err) {

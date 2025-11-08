@@ -37,9 +37,7 @@ const EditJob = () => {
         setCompany(job.company || "");
         setType(job.type || "Full-time");
         setDeadline(
-          job.deadline
-            ? new Date(job.deadline).toISOString().split("T")[0]
-            : ""
+          job.deadline ? new Date(job.deadline).toISOString().split("T")[0] : ""
         );
       } catch (err) {
         console.error(err);

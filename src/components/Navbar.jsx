@@ -24,19 +24,37 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <Link className="nav-link" to="/">Home</Link>
+      <Link className="nav-link" to="/">
+        Home
+      </Link>
 
-      {!user && <Link className="nav-link" to="/login">Login</Link>}
-      {!user && <Link className="nav-link" to="/register">Register</Link>}
+      {!user && (
+        <Link className="nav-link" to="/login">
+          Login
+        </Link>
+      )}
+      {!user && (
+        <Link className="nav-link" to="/register">
+          Register
+        </Link>
+      )}
 
-      {user && <Link className="nav-link" to="/profile">Profile</Link>}
+      {user && (
+        <Link className="nav-link" to="/profile">
+          Profile
+        </Link>
+      )}
 
       {user?.role === "employer" && (
-        <Link className="nav-link" to="/dashboard">Dashboard</Link>
+        <Link className="nav-link" to="/dashboard">
+          Dashboard
+        </Link>
       )}
 
       {user?.role === "jobseeker" && (
-        <Link className="nav-link" to="/applications">My Applications</Link>
+        <Link className="nav-link" to="/applications">
+          My Applications
+        </Link>
       )}
 
       {user && (

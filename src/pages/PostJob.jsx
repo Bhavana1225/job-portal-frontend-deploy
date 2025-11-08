@@ -4,6 +4,9 @@ import { useUser } from "../context/UserContext";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/style.css";
 
+// ✅ Backend URL
+const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
+
 const PostJob = () => {
   const { token } = useUser();
   const navigate = useNavigate();
@@ -27,7 +30,7 @@ const PostJob = () => {
 
     try {
       await axios.post(
-        "https://job-portal-backend-deploy.onrender.com/api/jobs",
+        `${API_URL}/jobs`,
         {
           title,
           description,
