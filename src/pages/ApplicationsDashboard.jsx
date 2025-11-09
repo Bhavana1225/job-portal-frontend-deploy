@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api"; // using api.js
+import { api } from "../api"; 
 import { useUser } from "../context/UserContext";
 import "../styles/style.css";
 
@@ -14,13 +14,25 @@ const ApplicationsDashboard = () => {
     if (!token) return;
 
     try {
-      const res = await api.get("/applications/me"); // ✅ matches backend route
+      const res = await api.get("/applications/me");
       setApplications(res.data || []);
     } catch (err) {
       console.error("Error fetching applications:", err);
       setError(err.response?.data?.message || "Failed to fetch applications");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ Delete an application
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this application?")) return;
+
+    try {
+      await api.delete(`/applications/${id}`);
+      setApplications(applications.filter((a) => a._id !== id));
+    } catch (err) {
+      alert("Failed to delete application");
     }
   };
 
@@ -34,6 +46,7 @@ const ApplicationsDashboard = () => {
   return (
     <div className="applications-dashboard">
       <h2>My Applications</h2>
+
       {applications.length === 0 ? (
         <p>You have not applied to any jobs yet.</p>
       ) : (
@@ -45,6 +58,7 @@ const ApplicationsDashboard = () => {
               <th>Location</th>
               <th>Applied On</th>
               <th>Resume</th>
+              <th>Actions</th> {/* ✅ Added column */}
             </tr>
           </thead>
           <tbody>
@@ -54,10 +68,12 @@ const ApplicationsDashboard = () => {
                 <td>{app.job?.company || "N/A"}</td>
                 <td>{app.job?.location || "N/A"}</td>
                 <td>{new Date(app.createdAt).toLocaleDateString()}</td>
+
+                {/* ✅ FIXED resume link (Cloudinary URL is already full path) */}
                 <td>
                   {app.resume ? (
                     <a
-                      href={`https://job-portal-backend-deploy.onrender.com/uploads/${app.resume}`}
+                      href={app.resume}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -67,11 +83,31 @@ const ApplicationsDashboard = () => {
                     "N/A"
                   )}
                 </td>
+
+                {/* ✅ Edit + Delete */}
+                <td>
+                  <button 
+                    className="btn btn-small"
+                    onClick={() => alert("Edit application page will be created soon")} 
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    className="btn btn-small delete-btn"
+                    onClick={() => handleDelete(app._id)}
+                    style={{ marginLeft: "8px", background: "red" }}
+                  >
+                    Delete
+                  </button>
+                </td>
+
               </tr>
             ))}
           </tbody>
         </table>
       )}
+
       <Link to="/">
         <button className="btn" style={{ marginTop: "20px" }}>
           Back to Jobs
