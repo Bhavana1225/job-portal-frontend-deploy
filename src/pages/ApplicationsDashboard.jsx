@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api"; 
+import { api } from "../api";
 import { useUser } from "../context/UserContext";
 import "../styles/style.css";
 
@@ -17,21 +17,19 @@ const ApplicationsDashboard = () => {
       const res = await api.get("/applications/me");
       setApplications(res.data || []);
     } catch (err) {
-      console.error("Error fetching applications:", err);
       setError(err.response?.data?.message || "Failed to fetch applications");
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Delete an application
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this application?")) return;
+    if (!window.confirm("Delete this application?")) return;
 
     try {
       await api.delete(`/applications/${id}`);
       setApplications(applications.filter((a) => a._id !== id));
-    } catch (err) {
+    } catch {
       alert("Failed to delete application");
     }
   };
@@ -58,50 +56,35 @@ const ApplicationsDashboard = () => {
               <th>Location</th>
               <th>Applied On</th>
               <th>Resume</th>
-              <th>Actions</th> {/* ✅ Added column */}
+              <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {applications.map((app) => (
               <tr key={app._id}>
-                <td>{app.job?.title || "N/A"}</td>
-                <td>{app.job?.company || "N/A"}</td>
-                <td>{app.job?.location || "N/A"}</td>
+                <td>{app.job?.title}</td>
+                <td>{app.job?.company}</td>
+                <td>{app.job?.location}</td>
                 <td>{new Date(app.createdAt).toLocaleDateString()}</td>
-
-                {/* ✅ FIXED resume link (Cloudinary URL is already full path) */}
                 <td>
                   {app.resume ? (
-                    <a
-                      href={app.resume}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href={app.resume} target="_blank" rel="noreferrer">
                       View Resume
                     </a>
                   ) : (
                     "N/A"
                   )}
                 </td>
-
-                {/* ✅ Edit + Delete */}
                 <td>
-                  <button 
-                    className="btn btn-small"
-                    onClick={() => alert("Edit application page will be created soon")} 
-                  >
-                    Edit
-                  </button>
-
                   <button
                     className="btn btn-small delete-btn"
                     onClick={() => handleDelete(app._id)}
-                    style={{ marginLeft: "8px", background: "red" }}
+                    style={{ background: "red" }}
                   >
                     Delete
                   </button>
                 </td>
-
               </tr>
             ))}
           </tbody>
