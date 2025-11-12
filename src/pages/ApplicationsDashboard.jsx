@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { useUser } from "../context/UserContext";
 import "../styles/style.css";
@@ -9,10 +9,10 @@ const ApplicationsDashboard = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const fetchApplications = async () => {
     if (!token) return;
-
     try {
       const res = await api.get("/applications/me");
       setApplications(res.data || []);
@@ -32,6 +32,10 @@ const ApplicationsDashboard = () => {
     } catch {
       alert("Failed to delete application");
     }
+  };
+
+  const handleEdit = (app) => {
+    navigate(`/edit-application/${app._id}`, { state: { application: app } });
   };
 
   useEffect(() => {
@@ -77,6 +81,13 @@ const ApplicationsDashboard = () => {
                   )}
                 </td>
                 <td>
+                  <button
+                    className="btn btn-small edit-btn"
+                    onClick={() => handleEdit(app)}
+                    style={{ background: "#007bff", marginRight: "5px" }}
+                  >
+                    Edit
+                  </button>
                   <button
                     className="btn btn-small delete-btn"
                     onClick={() => handleDelete(app._id)}

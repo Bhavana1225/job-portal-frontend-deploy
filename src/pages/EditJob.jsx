@@ -4,7 +4,7 @@ import { useUser } from "../context/UserContext";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import "../styles/style.css";
 
-// ✅ Use your backend Render URL
+// ✅ Backend API base URL
 const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
 
 const EditJob = () => {
@@ -20,8 +20,9 @@ const EditJob = () => {
   const [type, setType] = useState("Full-time");
   const [deadline, setDeadline] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // ✅ Load job data
+  // ✅ Fetch job details
   useEffect(() => {
     const fetchJob = async () => {
       try {
@@ -32,7 +33,7 @@ const EditJob = () => {
         const job = res.data;
         setTitle(job.title || "");
         setDescription(job.description || "");
-        setRequirements(job.requirements?.join(", ") || "");
+        setRequirements(Array.isArray(job.requirements) ? job.requirements.join(", ") : "");
         setLocation(job.location || "");
         setCompany(job.company || "");
         setType(job.type || "Full-time");
@@ -40,19 +41,22 @@ const EditJob = () => {
           job.deadline ? new Date(job.deadline).toISOString().split("T")[0] : ""
         );
       } catch (err) {
-        console.error(err);
+        console.error("Error loading job:", err);
         setError("Failed to load job details");
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (id) fetchJob();
+    if (id && token) fetchJob();
   }, [id, token]);
 
-  // ✅ Submit updates
+  // ✅ Update job
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    if (!title || !description) {
+    if (!title.trim() || !description.trim()) {
       setError("Title and description are required");
       return;
     }
@@ -72,15 +76,19 @@ const EditJob = () => {
           type,
           deadline,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
       navigate("/dashboard");
     } catch (err) {
-      console.error(err);
+      console.error("Error updating job:", err);
       setError("Failed to update job");
     }
   };
+
+  if (loading) return <p>Loading job details...</p>;
 
   return (
     <div className="edit-job-container">

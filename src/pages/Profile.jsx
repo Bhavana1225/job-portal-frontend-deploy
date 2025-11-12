@@ -3,30 +3,37 @@ import axios from "axios";
 import { useUser } from "../context/UserContext";
 import "../styles/style.css";
 
-// ✅ Backend API URL
 const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
 
 const Profile = () => {
   const { user, token, setUser } = useUser();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [contact, setContact] = useState("");
-  const [skills, setSkills] = useState("");
-  const [experience, setExperience] = useState("");
-  const [education, setEducation] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    contact: "",
+    skills: "",
+    experience: "",
+    education: ""
+  });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
     if (user) {
-      setName(user.name || "");
-      setEmail(user.email || "");
-      setContact(user.contact || "");
-      setSkills(user.skills || "");
-      setExperience(user.experience || "");
-      setEducation(user.education || "");
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        contact: user.contact || "",
+        skills: user.skills || "",
+        experience: user.experience || "",
+        education: user.education || ""
+      });
     }
   }, [user]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -35,19 +42,15 @@ const Profile = () => {
 
     try {
       const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       };
 
-      const { data } = await axios.put(
-        `${API_URL}/users/profile`,
-        { name, email, contact, skills, experience, education },
-        config
-      );
-
+      const { data } = await axios.put(`${API_URL}/users/profile`, formData, config);
+      
+      // ✅ Update context and localStorage
       setUser(data);
       localStorage.setItem("user", JSON.stringify(data));
+      
       setSuccess("Profile updated successfully!");
     } catch (err) {
       console.error(err);
@@ -62,35 +65,18 @@ const Profile = () => {
       {success && <p style={{ color: "green" }}>{success}</p>}
 
       <form onSubmit={handleUpdate}>
-        <div className="profile-field">
-          <label>Name</label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-        </div>
-
-        <div className="profile-field">
-          <label>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </div>
-
-        <div className="profile-field">
-          <label>Contact</label>
-          <input type="text" value={contact} onChange={(e) => setContact(e.target.value)} />
-        </div>
-
-        <div className="profile-field">
-          <label>Skills</label>
-          <input type="text" value={skills} onChange={(e) => setSkills(e.target.value)} />
-        </div>
-
-        <div className="profile-field">
-          <label>Experience</label>
-          <input type="text" value={experience} onChange={(e) => setExperience(e.target.value)} />
-        </div>
-
-        <div className="profile-field">
-          <label>Education</label>
-          <input type="text" value={education} onChange={(e) => setEducation(e.target.value)} />
-        </div>
+        {["name", "email", "contact", "skills", "experience", "education"].map((field) => (
+          <div className="profile-field" key={field}>
+            <label>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+            <input
+              type={field === "email" ? "email" : "text"}
+              name={field}
+              value={formData[field]}
+              onChange={handleChange}
+              required={field === "name" || field === "email"}
+            />
+          </div>
+        ))}
 
         <div className="profile-actions">
           <button type="submit" className="btn btn-save">Update Profile</button>
