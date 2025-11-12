@@ -1,124 +1,98 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useUser } from "../context/UserContext";
-import { useNavigate, Link } from "react-router-dom";
 import "../styles/style.css";
 
-// ✅ Backend URL
 const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
 
-const PostJob = () => {
-  const { token } = useUser();
-  const navigate = useNavigate();
-
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [requirements, setRequirements] = useState("");
-  const [location, setLocation] = useState("");
-  const [company, setCompany] = useState("");
-  const [type, setType] = useState("Full-time");
-  const [deadline, setDeadline] = useState("");
+const Profile = () => {
+  const { user, token, setUser } = useUser();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    contact: "",
+    skills: "",
+    experience: "",
+    education: ""
+  });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!title || !description) {
-      setError("Title and description are required");
-      return;
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        contact: user.contact || "",
+        skills: user.skills || "",
+        experience: user.experience || "",
+        education: user.education || ""
+      });
+    } else {
+      fetchUserData();
     }
+  }, [user]);
+
+  const fetchUserData = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/users/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser(res.data);
+      setFormData(res.data);
+    } catch (err) {
+      console.error("Fetch user profile error:", err);
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
 
     try {
-      await axios.post(
-        `${API_URL}/jobs`,
-        {
-          title,
-          description,
-          requirements: requirements
-            ? requirements.split(",").map((r) => r.trim())
-            : [],
-          location,
-          company,
-          type,
-          deadline,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const { data } = await axios.put(`${API_URL}/users/profile`, formData, config);
 
-      navigate("/dashboard");
+      setUser(data);
+      localStorage.setItem("user", JSON.stringify(data));
+      setSuccess("Profile updated successfully!");
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Failed to post job");
+      setError(err.response?.data?.message || "Failed to update profile");
     }
   };
 
   return (
-    <div className="postjob-container">
-      <h2>Post a New Job</h2>
+    <div className="profile-container">
+      <h2>My Profile</h2>
       {error && <p className="error">{error}</p>}
+      {success && <p style={{ color: "green" }}>{success}</p>}
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Job Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
+      <form onSubmit={handleUpdate}>
+        {["name", "email", "contact", "skills", "experience", "education"].map((field) => (
+          <div className="profile-field" key={field}>
+            <label>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+            <input
+              type={field === "email" ? "email" : "text"}
+              name={field}
+              value={formData[field]}
+              onChange={handleChange}
+              required={field === "name" || field === "email"}
+            />
+          </div>
+        ))}
 
-        <textarea
-          placeholder="Job Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-
-        <input
-          type="text"
-          placeholder="Requirements (comma separated)"
-          value={requirements}
-          onChange={(e) => setRequirements(e.target.value)}
-        />
-
-        <input
-          type="text"
-          placeholder="Location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        />
-
-        <input
-          type="text"
-          placeholder="Company"
-          value={company}
-          onChange={(e) => setCompany(e.target.value)}
-        />
-
-        <select value={type} onChange={(e) => setType(e.target.value)}>
-          <option value="Full-time">Full-time</option>
-          <option value="Part-time">Part-time</option>
-          <option value="Internship">Internship</option>
-          <option value="Contract">Contract</option>
-        </select>
-
-        <input
-          type="date"
-          value={deadline}
-          onChange={(e) => setDeadline(e.target.value)}
-        />
-
-        <button type="submit" className="btn">Post Job</button>
+        <div className="profile-actions">
+          <button type="submit" className="btn btn-save">Update Profile</button>
+        </div>
       </form>
-
-      <div style={{ textAlign: "center", marginTop: "10px" }}>
-        <Link to="/dashboard">
-          <button className="btn">Back to Dashboard</button>
-        </Link>
-      </div>
     </div>
   );
 };
 
-export default PostJob;
+export default Profile;

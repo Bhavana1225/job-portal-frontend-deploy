@@ -1,112 +1,101 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { api } from "../api";
+import axios from "axios";
 import { useUser } from "../context/UserContext";
+import { Link } from "react-router-dom";
 import "../styles/style.css";
+
+const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
 
 const ApplicationsDashboard = () => {
   const { token } = useUser();
   const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
-  const fetchApplications = async () => {
-    if (!token) return;
-    try {
-      const res = await api.get("/applications/me");
-      setApplications(res.data || []);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch applications");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this application?")) return;
-
-    try {
-      await api.delete(`/applications/${id}`);
-      setApplications(applications.filter((a) => a._id !== id));
-    } catch {
-      alert("Failed to delete application");
-    }
-  };
-
-  const handleEdit = (app) => {
-    navigate(`/edit-application/${app._id}`, { state: { application: app } });
-  };
-
+  // ✅ Fetch applications
   useEffect(() => {
-    fetchApplications();
+    const fetchApplications = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/applications/my`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setApplications(res.data);
+      } catch (err) {
+        console.error("Error fetching applications:", err);
+        setError("Failed to load applications");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (token) fetchApplications();
   }, [token]);
 
-  if (loading) return <p>Loading applications...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  // ✅ Delete application
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this application?")) return;
+
+    try {
+      await axios.delete(`${API_URL}/applications/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setApplications(applications.filter((app) => app._id !== id));
+    } catch (err) {
+      console.error("Error deleting application:", err);
+      setError("Failed to delete application");
+    }
+  };
+
+  if (loading) return <p>Loading your applications...</p>;
+  if (error) return <p className="error">{error}</p>;
 
   return (
-    <div className="applications-dashboard">
+    <div className="dashboard-container">
       <h2>My Applications</h2>
 
       {applications.length === 0 ? (
-        <p>You have not applied to any jobs yet.</p>
+        <p>You haven’t applied for any jobs yet.</p>
       ) : (
-        <table className="dashboard-table">
-          <thead>
-            <tr>
-              <th>Job Title</th>
-              <th>Company</th>
-              <th>Location</th>
-              <th>Applied On</th>
-              <th>Resume</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+        <div className="applications-list">
+          {applications.map((app) => (
+            <div key={app._id} className="application-card">
+              <h3>{app.job?.title || "Job Title Unavailable"}</h3>
+              <p><strong>Company:</strong> {app.job?.company || "N/A"}</p>
+              <p><strong>Location:</strong> {app.job?.location || "N/A"}</p>
+              <p><strong>Applied on:</strong> {new Date(app.createdAt).toLocaleDateString()}</p>
 
-          <tbody>
-            {applications.map((app) => (
-              <tr key={app._id}>
-                <td>{app.job?.title}</td>
-                <td>{app.job?.company}</td>
-                <td>{app.job?.location}</td>
-                <td>{new Date(app.createdAt).toLocaleDateString()}</td>
-                <td>
-                  {app.resume ? (
-                    <a href={app.resume} target="_blank" rel="noreferrer">
-                      View Resume
-                    </a>
-                  ) : (
-                    "N/A"
-                  )}
-                </td>
-                <td>
-                  <button
-                    className="btn btn-small edit-btn"
-                    onClick={() => handleEdit(app)}
-                    style={{ background: "#007bff", marginRight: "5px" }}
+              <div className="application-actions">
+                {/* ✅ View Resume */}
+                {app.resume ? (
+                  <a
+                    href={app.resume}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-view"
                   >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-small delete-btn"
-                    onClick={() => handleDelete(app._id)}
-                    style={{ background: "red" }}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    View Resume
+                  </a>
+                ) : (
+                  <p>No Resume Uploaded</p>
+                )}
+
+                {/* ✅ Edit Application */}
+                <Link to={`/apply/${app.job?._id}`} className="btn btn-edit">
+                  Edit
+                </Link>
+
+                {/* ✅ Delete Application */}
+                <button
+                  onClick={() => handleDelete(app._id)}
+                  className="btn btn-delete"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
-
-      <Link to="/">
-        <button className="btn" style={{ marginTop: "20px" }}>
-          Back to Jobs
-        </button>
-      </Link>
     </div>
   );
 };

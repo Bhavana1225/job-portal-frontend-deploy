@@ -16,7 +16,6 @@ export const UserProvider = ({ children }) => {
 
     if (storedUser) setUser(JSON.parse(storedUser));
     if (storedToken) setToken(storedToken);
-
     setLoading(false);
   }, []);
 
@@ -24,9 +23,6 @@ export const UserProvider = ({ children }) => {
     if (user && token) {
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
-    } else {
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
     }
   }, [user, token]);
 
@@ -43,15 +39,14 @@ export const UserProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(res.data);
+      localStorage.setItem("user", JSON.stringify(res.data));
     } catch (err) {
       console.error("Failed to refresh user profile:", err);
     }
   };
 
   return (
-    <UserContext.Provider
-      value={{ user, setUser, token, setToken, loading, updateUser, refreshUser }}
-    >
+    <UserContext.Provider value={{ user, setUser, token, setToken, loading, updateUser, refreshUser }}>
       {children}
     </UserContext.Provider>
   );
