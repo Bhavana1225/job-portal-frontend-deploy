@@ -1,69 +1,79 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
-import { api } from "../api";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import axios from "axios";
 import { useUser } from "../context/UserContext";
 import "../styles/style.css";
 
+const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
+
 const EditApplication = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // this is the application _id
   const { token } = useUser();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [formData, setFormData] = useState({
-    coverLetter: "",
-    resume: "",
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    resume: null
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  // ✅ Fetch the application details
   useEffect(() => {
     const fetchApplication = async () => {
       try {
-        // Try to get data from navigation state first
-        if (location.state?.application) {
-          const app = location.state.application;
+        const res = await axios.get(`${API_URL}/applications/my`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const app = res.data.find((a) => a._id === id);
+        if (app) {
           setFormData({
-            coverLetter: app.coverLetter || "",
-            resume: app.resume || "",
+            name: app.name || "",
+            email: app.email || "",
+            resume: null
           });
-          setLoading(false);
-        } else {
-          // Otherwise fetch from backend
-          const res = await api.get(`/applications/${id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setFormData({
-            coverLetter: res.data.coverLetter || "",
-            resume: res.data.resume || "",
-          });
-          setLoading(false);
         }
+        setLoading(false);
       } catch (err) {
+        console.error("Error loading application:", err);
         setError("Failed to load application");
         setLoading(false);
       }
     };
 
-    if (id && token) fetchApplication();
-  }, [id, token, location.state]);
+    if (token && id) fetchApplication();
+  }, [token, id]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, files } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: files ? files[0] : value
+    }));
   };
 
+  // ✅ Handle update
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      await api.put(
-        `/applications/${id}`,
-        { ...formData },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("email", formData.email);
+      if (formData.resume) data.append("resume", formData.resume);
+
+      await axios.put(`${API_URL}/applications/${id}`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`
+        }
+      });
+
       navigate("/applications");
     } catch (err) {
+      console.error("Error updating application:", err);
       setError("Failed to update application");
     }
   };
@@ -73,27 +83,33 @@ const EditApplication = () => {
   return (
     <div className="edit-job-container">
       <h2>Edit Application</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error">{error}</p>}
 
       <form onSubmit={handleSubmit}>
-        <div>
-          <textarea
-            name="coverLetter"
-            placeholder="Cover Letter"
-            value={formData.coverLetter}
-            onChange={handleChange}
-          />
-        </div>
+        <input
+          type="text"
+          name="name"
+          placeholder="Your Name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
 
-        <div>
-          <input
-            type="text"
-            name="resume"
-            placeholder="Resume URL or file path"
-            value={formData.resume}
-            onChange={handleChange}
-          />
-        </div>
+        <input
+          type="email"
+          name="email"
+          placeholder="Your Email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="file"
+          name="resume"
+          accept=".pdf,.doc,.docx"
+          onChange={handleChange}
+        />
 
         <button type="submit" className="btn btn-save">
           Save Changes

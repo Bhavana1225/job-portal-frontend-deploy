@@ -26,7 +26,7 @@ const ApplicationForm = ({ jobId }) => {
       formData.append("resume", resume);
 
       await axios.post(
-        `https://job-portal-backend-deploy.onrender.com/api/applications/${jobId}/apply`,
+        `https://job-portal-backend-deploy.onrender.com/api/applications/${jobId}`,
         formData,
         {
           headers: {
