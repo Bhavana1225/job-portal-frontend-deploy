@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "../context/UserContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/style.css";
 
 const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
@@ -11,6 +11,7 @@ const ApplicationsDashboard = () => {
   const [applications, setApplications] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // ✅ Fetch applications
   useEffect(() => {
@@ -21,7 +22,7 @@ const ApplicationsDashboard = () => {
         });
         setApplications(res.data);
       } catch (err) {
-        console.error("Error fetching applications:", err);
+        console.error("Error fetching applications:", err.response?.data || err.message);
         setError("Failed to load applications");
       } finally {
         setLoading(false);
@@ -41,9 +42,25 @@ const ApplicationsDashboard = () => {
       });
       setApplications(applications.filter((app) => app._id !== id));
     } catch (err) {
-      console.error("Error deleting application:", err);
+      console.error("Error deleting application:", err.response?.data || err.message);
       setError("Failed to delete application");
     }
+  };
+
+  // ✅ Edit application (redirects properly)
+  const handleEdit = (jobId, appId) => {
+    if (jobId && appId) {
+      navigate(`/edit-application/${appId}`);
+    } else {
+      alert("Job or Application not found");
+    }
+  };
+
+  // ✅ View Resume (handles both local and remote URLs)
+  const getResumeLink = (resumePath) => {
+    if (!resumePath) return "";
+    if (resumePath.startsWith("http")) return resumePath;
+    return `${API_URL.replace("/api", "")}/${resumePath}`;
   };
 
   if (loading) return <p>Loading your applications...</p>;
@@ -68,7 +85,7 @@ const ApplicationsDashboard = () => {
                 {/* ✅ View Resume */}
                 {app.resume ? (
                   <a
-                    href={app.resume}
+                    href={getResumeLink(app.resume)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-view"
@@ -80,9 +97,12 @@ const ApplicationsDashboard = () => {
                 )}
 
                 {/* ✅ Edit Application */}
-                <Link to={`/apply/${app.job?._id}`} className="btn btn-edit">
+                <button
+                  onClick={() => handleEdit(app.job?._id, app._id)}
+                  className="btn btn-edit"
+                >
                   Edit
-                </Link>
+                </button>
 
                 {/* ✅ Delete Application */}
                 <button
