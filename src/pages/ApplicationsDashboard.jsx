@@ -14,7 +14,7 @@ const ApplicationsDashboard = () => {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const res = await api.get("/applications/my-applications", {
+        const res = await api.get("/applications/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setApplications(res.data);
