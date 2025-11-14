@@ -5,7 +5,7 @@ import { useUser } from "../context/UserContext";
 import "../styles/style.css";
 
 const ApplicationsDashboard = () => {
-  const { token, user } = useUser();
+  const { token } = useUser();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -18,28 +18,26 @@ const ApplicationsDashboard = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setApplications(res.data);
-        setLoading(false);
       } catch (err) {
         setError("Failed to load applications");
+      } finally {
         setLoading(false);
       }
     };
 
-    if (token) {
-      fetchApplications();
-    }
+    if (token) fetchApplications();
   }, [token]);
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this application?")) {
-      try {
-        await api.delete(`/applications/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setApplications((prev) => prev.filter((a) => a._id !== id));
-      } catch (err) {
-        alert("Failed to delete application");
-      }
+    if (!window.confirm("Are you sure you want to delete this application?")) return;
+
+    try {
+      await api.delete(`/applications/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setApplications((prev) => prev.filter((a) => a._id !== id));
+    } catch {
+      alert("Failed to delete application");
     }
   };
 
@@ -50,20 +48,12 @@ const ApplicationsDashboard = () => {
   };
 
   const handleViewResume = (resumeUrl) => {
-    if (resumeUrl) {
-      window.open(resumeUrl, "_blank");
-    } else {
-      alert("Resume not available");
-    }
+    if (resumeUrl) window.open(resumeUrl, "_blank");
+    else alert("Resume not available");
   };
 
-  if (loading) {
-    return <p>Loading applications...</p>;
-  }
-
-  if (error) {
-    return <p style={{ color: "red" }}>{error}</p>;
-  }
+  if (loading) return <p>Loading applications...</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div className="dashboard-container">
@@ -80,24 +70,15 @@ const ApplicationsDashboard = () => {
               <p><strong>Cover Letter:</strong> {app.coverLetter || "—"}</p>
 
               <div className="button-group">
-                <button
-                  className="btn btn-edit"
-                  onClick={() => handleEdit(app)}
-                >
+                <button className="btn btn-edit" onClick={() => handleEdit(app)}>
                   Edit
                 </button>
 
-                <button
-                  className="btn btn-delete"
-                  onClick={() => handleDelete(app._id)}
-                >
+                <button className="btn btn-delete" onClick={() => handleDelete(app._id)}>
                   Delete
                 </button>
 
-                <button
-                  className="btn btn-view"
-                  onClick={() => handleViewResume(app.resume)}
-                >
+                <button className="btn btn-view" onClick={() => handleViewResume(app.resume)}>
                   View Resume
                 </button>
               </div>
@@ -107,9 +88,7 @@ const ApplicationsDashboard = () => {
       )}
 
       <div style={{ marginTop: "20px", textAlign: "center" }}>
-        <Link to="/">
-          <button className="btn btn-save">Back to Home</button>
-        </Link>
+        <Link to="/"><button className="btn btn-save">Back to Home</button></Link>
       </div>
     </div>
   );

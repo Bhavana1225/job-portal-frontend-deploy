@@ -1,4 +1,4 @@
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import axios from "axios";
 import { useUser } from "../context/UserContext";
 import "../styles/style.css";
@@ -53,28 +53,14 @@ const ApplicationForm = ({ jobId }) => {
       {success && <p style={{ color: "green" }}>{success}</p>}
 
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Your Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
+        <input type="text" placeholder="Your Name" value={name}
+          onChange={(e) => setName(e.target.value)} required />
 
-        <input
-          type="email"
-          placeholder="Your Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <input type="email" placeholder="Your Email" value={email}
+          onChange={(e) => setEmail(e.target.value)} required />
 
-        <input
-          type="file"
-          accept=".pdf,.doc,.docx"
-          onChange={(e) => setResume(e.target.files[0])}
-          required
-        />
+        <input type="file" accept=".pdf,.doc,.docx"
+          onChange={(e) => setResume(e.target.files[0])} required />
 
         <button type="submit" className="btn">Submit Application</button>
       </form>
