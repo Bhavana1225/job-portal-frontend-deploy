@@ -3,7 +3,7 @@ import axios from "axios";
 import { useUser } from "../context/UserContext";
 import { Link } from "react-router-dom";
 
-const ApplicationDashboard = () => {
+const ApplicationsDashboard = () => {
   const { user } = useUser();
   const [applications, setApplications] = useState([]);
 
@@ -13,10 +13,9 @@ const ApplicationDashboard = () => {
         const res = await axios.get(
           "https://job-portal-backend-deploy.onrender.com/api/applications/me",
           {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           }
         );
-
         setApplications(res.data);
       } catch (error) {
         console.log("Error fetching applications", error);
@@ -31,10 +30,9 @@ const ApplicationDashboard = () => {
       await axios.delete(
         `https://job-portal-backend-deploy.onrender.com/api/applications/${id}`,
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-
       setApplications(applications.filter((app) => app._id !== id));
     } catch (error) {
       console.log("Error deleting application", error);
@@ -71,7 +69,7 @@ const ApplicationDashboard = () => {
 
               {app.resume && (
                 <a
-                  href={app.resume} // ✅ Cloudinary URL directly
+                  href={app.resume} // ✅ use absolute URL from backend
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn view-btn"
@@ -88,4 +86,4 @@ const ApplicationDashboard = () => {
   );
 };
 
-export default ApplicationDashboard;
+export default ApplicationsDashboard;

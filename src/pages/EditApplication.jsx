@@ -15,9 +15,8 @@ const EditApplication = () => {
     name: "",
     email: "",
     resume: null,
-    existingResume: ""
+    existingResume: "",
   });
-
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -25,7 +24,7 @@ const EditApplication = () => {
     const fetchApplication = async () => {
       try {
         const res = await axios.get(`${API_URL}/applications/me`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const app = res.data.find((a) => a._id === id);
@@ -35,7 +34,7 @@ const EditApplication = () => {
             name: app.name,
             email: app.email,
             resume: null,
-            existingResume: app.resume // ✅ show Cloudinary resume
+            existingResume: app.resume, // ✅ absolute URL
           });
         }
 
@@ -54,7 +53,7 @@ const EditApplication = () => {
     const { name, value, files } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: files ? files[0] : value
+      [name]: files ? files[0] : value,
     }));
   };
 
@@ -74,8 +73,8 @@ const EditApplication = () => {
       await axios.put(`${API_URL}/applications/${id}`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       navigate("/applications");
@@ -117,7 +116,7 @@ const EditApplication = () => {
           <p>
             <strong>Current Resume: </strong>
             <a
-              href={formData.existingResume} // ✅ Cloudinary URL
+              href={formData.existingResume} // ✅ absolute URL
               target="_blank"
               rel="noopener noreferrer"
             >
