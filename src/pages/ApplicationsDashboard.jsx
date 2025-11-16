@@ -12,10 +12,9 @@ const ApplicationsDashboard = () => {
       try {
         const res = await axios.get(
           "https://job-portal-backend-deploy.onrender.com/api/applications/me",
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-          }
+          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
+
         setApplications(res.data);
       } catch (error) {
         console.log("Error fetching applications", error);
@@ -29,10 +28,9 @@ const ApplicationsDashboard = () => {
     try {
       await axios.delete(
         `https://job-portal-backend-deploy.onrender.com/api/applications/${id}`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
+
       setApplications(applications.filter((app) => app._id !== id));
     } catch (error) {
       console.log("Error deleting application", error);
@@ -48,7 +46,6 @@ const ApplicationsDashboard = () => {
       ) : (
         applications.map((app) => (
           <div key={app._id} className="application-card">
-
             <div className="application-info">
               <h3>{app.job?.title}</h3>
               <p><strong>Company:</strong> {app.job?.company}</p>
@@ -69,7 +66,7 @@ const ApplicationsDashboard = () => {
 
               {app.resume && (
                 <a
-                  href={app.resume} // ✅ use absolute URL from backend
+                  href={app.resume} // <-- use URL as stored in MongoDB
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn view-btn"
@@ -78,7 +75,6 @@ const ApplicationsDashboard = () => {
                 </a>
               )}
             </div>
-
           </div>
         ))
       )}
