@@ -1,97 +1,78 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { api } from "../api";
+import axios from "axios";
 import { useUser } from "../context/UserContext";
-import "../styles/style.css";
+import { Link } from "react-router-dom";
 
-const ApplicationsDashboard = () => {
-  const { token } = useUser();
+const ApplicationDashboard = () => {
+  const { user } = useUser();
   const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const res = await api.get("/applications/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          `http://localhost:5000/api/applications/user/${user._id}`
+        );
         setApplications(res.data);
-      } catch (err) {
-        setError("Failed to load applications");
-      } finally {
-        setLoading(false);
+      } catch (error) {
+        console.log("Error fetching applications", error);
       }
     };
-
-    if (token) fetchApplications();
-  }, [token]);
+    fetchApplications();
+  }, [user]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this application?")) return;
-
     try {
-      await api.delete(`/applications/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setApplications((prev) => prev.filter((a) => a._id !== id));
-    } catch {
-      alert("Failed to delete application");
+      await axios.delete(`http://localhost:5000/api/applications/${id}`);
+      setApplications(applications.filter((app) => app._id !== id));
+    } catch (error) {
+      console.log("Error deleting application", error);
     }
   };
 
-  const handleEdit = (application) => {
-    navigate(`/edit-application/${application._id}`, {
-      state: { application },
-    });
-  };
-
-  const handleViewResume = (resumeUrl) => {
-    if (resumeUrl) window.open(resumeUrl, "_blank");
-    else alert("Resume not available");
-  };
-
-  if (loading) return <p>Loading applications...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-
   return (
-    <div className="dashboard-container">
+    <div className="applications-container">
       <h2>My Applications</h2>
 
       {applications.length === 0 ? (
-        <p>No applications found.</p>
+        <p>No applications yet.</p>
       ) : (
-        <div className="job-list">
-          {applications.map((app) => (
-            <div key={app._id} className="job-card">
-              <h3>{app.job?.title || "Untitled Job"}</h3>
-              <p><strong>Company:</strong> {app.job?.company || "N/A"}</p>
-              <p><strong>Cover Letter:</strong> {app.coverLetter || "—"}</p>
-
-              <div className="button-group">
-                <button className="btn btn-edit" onClick={() => handleEdit(app)}>
-                  Edit
-                </button>
-
-                <button className="btn btn-delete" onClick={() => handleDelete(app._id)}>
-                  Delete
-                </button>
-
-                <button className="btn btn-view" onClick={() => handleViewResume(app.resume)}>
-                  View Resume
-                </button>
-              </div>
+        applications.map((app) => (
+          <div key={app._id} className="application-card">
+            <div className="application-info">
+              <h3>{app.jobTitle}</h3>
+              <p><strong>Company:</strong> {app.companyName}</p>
+              <p><strong>Applied On:</strong> {new Date(app.createdAt).toDateString()}</p>
             </div>
-          ))}
-        </div>
-      )}
 
-      <div style={{ marginTop: "20px", textAlign: "center" }}>
-        <Link to="/"><button className="btn btn-save">Back to Home</button></Link>
-      </div>
+            <div className="application-actions">
+              <Link to={`/edit-application/${app._id}`} className="btn edit-btn">
+                Edit
+              </Link>
+
+              <button
+                onClick={() => handleDelete(app._id)}
+                className="btn delete-btn"
+              >
+                Delete
+              </button>
+
+              {app.resumeUrl && (
+                <a
+                  href={app.resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn view-btn"
+                >
+                  View Resume
+                </a>
+              )}
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 };
 
-export default ApplicationsDashboard;
+export default ApplicationDashboard;

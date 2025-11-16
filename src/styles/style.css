@@ -214,3 +214,92 @@ textarea { resize: vertical; min-height: 80px; }
   .job-list { grid-template-columns: 1fr; }
   .dashboard-table th, .dashboard-table td { font-size: 13px; }
 }
+/* My Applications Page */
+.applications-container {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+.applications-container h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Application Card */
+.application-card {
+  background: #fff;
+  padding: 18px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 15px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+
+  border-left: 4px solid #1976d2;
+}
+
+.application-info h3 {
+  margin: 0 0 6px 0;
+  color: #222;
+}
+
+.application-info p {
+  margin: 3px 0;
+  color: #555;
+  font-size: 14px;
+}
+
+/* Buttons Right Side */
+.application-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Reuse your button theme */
+.application-actions .btn {
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+/* Specific buttons */
+.edit-btn {
+  background-color: #1976d2;
+}
+.edit-btn:hover {
+  background-color: #115293;
+}
+
+.delete-btn {
+  background-color: #e53935;
+}
+.delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+.view-btn {
+  background-color: #6a1b9a;
+}
+.view-btn:hover {
+  background-color: #4a148c;
+}
+
+/* Mobile Responsive */
+@media (max-width: 700px) {
+  .application-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .application-actions {
+    width: 100%;
+    gap: 10px;
+    justify-content: flex-start;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+}
