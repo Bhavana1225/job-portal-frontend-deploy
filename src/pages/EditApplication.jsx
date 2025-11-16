@@ -1,43 +1,46 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import axios from "axios";
+import { api } from "../api";
 import { useUser } from "../context/UserContext";
 import "../styles/style.css";
 
-const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
-
 const EditApplication = () => {
-  const { id } = useParams(); // this is the application _id
+  const { id } = useParams();
   const { token } = useUser();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    resume: null
+    resumeFile: null,
+    existingResume: ""
   });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // ✅ Fetch the application details
+  // fetch single application from /applications/me then find by id
   useEffect(() => {
     const fetchApplication = async () => {
       try {
-        const res = await axios.get(`${API_URL}/applications/my`, {
-          headers: { Authorization: `Bearer ${token}` }
+        const res = await api.get("/applications/me", {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        const app = res.data.find((a) => a._id === id);
+
+        const app = (res.data || []).find((a) => a._id === id);
         if (app) {
           setFormData({
             name: app.name || "",
             email: app.email || "",
-            resume: null
+            resumeFile: null,
+            existingResume: app.resume || ""
           });
+        } else {
+          setError("Application not found");
         }
-        setLoading(false);
       } catch (err) {
         console.error("Error loading application:", err);
         setError("Failed to load application");
+      } finally {
         setLoading(false);
       }
     };
@@ -53,22 +56,17 @@ const EditApplication = () => {
     }));
   };
 
-  // ✅ Handle update
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
     try {
       const data = new FormData();
       data.append("name", formData.name);
       data.append("email", formData.email);
-      if (formData.resume) data.append("resume", formData.resume);
+      if (formData.resumeFile) data.append("resume", formData.resumeFile);
 
-      await axios.put(`${API_URL}/applications/${id}`, data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`
-        }
+      await api.put(`/applications/${id}`, data, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
       });
 
       navigate("/applications");
@@ -83,6 +81,7 @@ const EditApplication = () => {
   return (
     <div className="edit-job-container">
       <h2>Edit Application</h2>
+
       {error && <p className="error">{error}</p>}
 
       <form onSubmit={handleSubmit}>
@@ -104,22 +103,25 @@ const EditApplication = () => {
           required
         />
 
+        {formData.existingResume && (
+          <p>
+            <strong>Current Resume:</strong>{" "}
+            <a href={formData.existingResume} target="_blank" rel="noopener noreferrer">View Uploaded Resume</a>
+          </p>
+        )}
+
         <input
           type="file"
-          name="resume"
+          name="resumeFile"
           accept=".pdf,.doc,.docx"
           onChange={handleChange}
         />
 
-        <button type="submit" className="btn btn-save">
-          Save Changes
-        </button>
+        <button type="submit" className="btn btn-save">Save Changes</button>
       </form>
 
       <div style={{ marginTop: "10px", textAlign: "center" }}>
-        <Link to="/applications">
-          <button className="btn btn-edit">Back to Applications</button>
-        </Link>
+        <Link to="/applications"><button className="btn btn-edit">Back to Applications</button></Link>
       </div>
     </div>
   );

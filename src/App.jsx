@@ -45,13 +45,15 @@ function App() {
             </>
           )}
 
-          {/* Jobseeker Routes */}
-          {user?.role === "jobseeker" && (
-            <>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/applications" element={<ApplicationsDashboard />} />
-            </>
-          )}
+          // Jobseeker Routes
+{user?.role === "jobseeker" && (
+  <>
+    <Route path="/dashboard" element={<Dashboard />} />
+    <Route path="/applications" element={<ApplicationsDashboard />} />
+    <Route path="/edit-application/:id" element={<EditApplication />} />
+  </>
+)}
+
 
           {/* Fallback */}
           <Route path="*" element={<Homepage />} />
