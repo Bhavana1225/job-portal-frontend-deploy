@@ -4,8 +4,6 @@ import axios from "axios";
 import { useUser } from "../context/UserContext";
 import "../styles/style.css";
 
-const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/dueracixy/raw/upload/";
-
 const API_URL = "https://job-portal-backend-deploy.onrender.com/api";
 
 const EditApplication = () => {
@@ -19,6 +17,7 @@ const EditApplication = () => {
     resume: null,
     existingResume: ""
   });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -28,15 +27,18 @@ const EditApplication = () => {
         const res = await axios.get(`${API_URL}/applications/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+
         const app = res.data.find((a) => a._id === id);
+
         if (app) {
           setFormData({
             name: app.name,
             email: app.email,
             resume: null,
-            existingResume: app.resume
+            existingResume: app.resume // ✅ show Cloudinary resume
           });
         }
+
         setLoading(false);
       } catch (err) {
         console.error("Error loading application:", err);
@@ -44,6 +46,7 @@ const EditApplication = () => {
         setLoading(false);
       }
     };
+
     if (token && id) fetchApplication();
   }, [token, id]);
 
@@ -63,10 +66,16 @@ const EditApplication = () => {
       const data = new FormData();
       data.append("name", formData.name);
       data.append("email", formData.email);
-      if (formData.resume) data.append("resume", formData.resume);
+
+      if (formData.resume) {
+        data.append("resume", formData.resume);
+      }
 
       await axios.put(`${API_URL}/applications/${id}`, data, {
-        headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` }
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`
+        }
       });
 
       navigate("/applications");
@@ -81,9 +90,11 @@ const EditApplication = () => {
   return (
     <div className="edit-job-container">
       <h2>Edit Application</h2>
+
       {error && <p className="error">{error}</p>}
 
       <form onSubmit={handleSubmit}>
+
         <input
           type="text"
           name="name"
@@ -106,7 +117,7 @@ const EditApplication = () => {
           <p>
             <strong>Current Resume: </strong>
             <a
-              href={formData.existingResume.startsWith("http") ? formData.existingResume : `${CLOUDINARY_BASE_URL}${formData.existingResume}`}
+              href={formData.existingResume} // ✅ Cloudinary URL
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -122,7 +133,9 @@ const EditApplication = () => {
           onChange={handleChange}
         />
 
-        <button type="submit" className="btn btn-save">Save Changes</button>
+        <button type="submit" className="btn btn-save">
+          Save Changes
+        </button>
       </form>
 
       <div style={{ marginTop: "10px", textAlign: "center" }}>
