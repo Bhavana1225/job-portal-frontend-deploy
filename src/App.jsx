@@ -1,4 +1,5 @@
 import React from "react";
+import EditApplication from "./pages/EditApplication";
 import { Routes, Route } from "react-router-dom";
 import Homepage from "./pages/Homepage";
 import JobList from "./pages/JobList";
