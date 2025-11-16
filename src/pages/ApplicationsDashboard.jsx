@@ -1,99 +1,82 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { api } from "../api";
+import axios from "axios";
 import { useUser } from "../context/UserContext";
-import "../styles/style.css";
+import { Link } from "react-router-dom";
+
+const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/dueracixy/raw/upload/";
 
 const ApplicationsDashboard = () => {
-  const { token } = useUser();
+  const { user } = useUser();
   const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const res = await api.get("/applications/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setApplications(res.data || []);
-      } catch (err) {
-        console.error("Fetch applications:", err);
-        setError("Failed to load applications");
-      } finally {
-        setLoading(false);
+        const res = await axios.get(
+          "https://job-portal-backend-deploy.onrender.com/api/applications/me",
+          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        );
+        setApplications(res.data);
+      } catch (error) {
+        console.log("Error fetching applications", error);
       }
     };
-
-    if (token) fetchApplications();
-  }, [token]);
+    fetchApplications();
+  }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this application?")) return;
-
     try {
-      await api.delete(`/applications/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setApplications((prev) => prev.filter((a) => a._id !== id));
-    } catch (err) {
-      console.error("Delete application error:", err);
-      alert("Failed to delete application");
+      await axios.delete(
+        `https://job-portal-backend-deploy.onrender.com/api/applications/${id}`,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      setApplications(applications.filter((app) => app._id !== id));
+    } catch (error) {
+      console.log("Error deleting application", error);
     }
   };
-
-  const handleEdit = (application) => {
-    navigate(`/edit-application/${application._id}`, { state: { application } });
-  };
-
-  const handleViewResume = (resume) => {
-    if (!resume) {
-      alert("Resume not available");
-      return;
-    }
-    // resume is a full URL from Cloudinary — open directly
-    window.open(resume, "_blank");
-  };
-
-  if (loading) return <p>Loading applications...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div className="applications-container">
       <h2>My Applications</h2>
 
       {applications.length === 0 ? (
-        <p>No applications found.</p>
+        <p>No applications yet.</p>
       ) : (
         applications.map((app) => (
           <div key={app._id} className="application-card">
             <div className="application-info">
-              <h3>{app.job?.title || "Untitled Job"}</h3>
-              <p><strong>Company:</strong> {app.job?.company || "N/A"}</p>
-              <p><strong>Applied On:</strong> {new Date(app.createdAt).toLocaleDateString()}</p>
+              <h3>{app.job?.title}</h3>
+              <p><strong>Company:</strong> {app.job?.company}</p>
+              <p><strong>Applied On:</strong> {new Date(app.createdAt).toDateString()}</p>
             </div>
 
             <div className="application-actions">
-              <button className="btn edit-btn" onClick={() => handleEdit(app)}>
+              <Link to={`/edit-application/${app._id}`} className="btn edit-btn">
                 Edit
-              </button>
+              </Link>
 
-              <button className="btn delete-btn" onClick={() => handleDelete(app._id)}>
+              <button
+                onClick={() => handleDelete(app._id)}
+                className="btn delete-btn"
+              >
                 Delete
               </button>
 
-              <button className="btn view-btn" onClick={() => handleViewResume(app.resume)}>
-                View Resume
-              </button>
+              {app.resume && (
+                <a
+                  href={app.resume.startsWith("http") ? app.resume : `${CLOUDINARY_BASE_URL}${app.resume}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn view-btn"
+                >
+                  View Resume
+                </a>
+              )}
             </div>
           </div>
         ))
       )}
-
-      <div style={{ marginTop: "20px", textAlign: "center" }}>
-        <Link to="/"><button className="btn btn-save">Back to Home</button></Link>
-      </div>
     </div>
   );
 };
