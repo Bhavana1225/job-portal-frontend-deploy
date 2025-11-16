@@ -10,20 +10,28 @@ const ApplicationDashboard = () => {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/applications/user/${user._id}`
-        );
+        const res = await axios.get("https://job-portal-backend-deploy.onrender.com/api/applications/me", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+
         setApplications(res.data);
       } catch (error) {
         console.log("Error fetching applications", error);
       }
     };
+
     fetchApplications();
-  }, [user]);
+  }, []);
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/applications/${id}`);
+      await axios.delete(
+        `https://job-portal-backend-deploy.onrender.com/api/applications/${id}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        }
+      );
+
       setApplications(applications.filter((app) => app._id !== id));
     } catch (error) {
       console.log("Error deleting application", error);
@@ -39,12 +47,15 @@ const ApplicationDashboard = () => {
       ) : (
         applications.map((app) => (
           <div key={app._id} className="application-card">
+
+            {/* APPLICATION INFO */}
             <div className="application-info">
-              <h3>{app.jobTitle}</h3>
-              <p><strong>Company:</strong> {app.companyName}</p>
+              <h3>{app.job?.title}</h3>
+              <p><strong>Company:</strong> {app.job?.company}</p>
               <p><strong>Applied On:</strong> {new Date(app.createdAt).toDateString()}</p>
             </div>
 
+            {/* BUTTONS */}
             <div className="application-actions">
               <Link to={`/edit-application/${app._id}`} className="btn edit-btn">
                 Edit
@@ -57,9 +68,9 @@ const ApplicationDashboard = () => {
                 Delete
               </button>
 
-              {app.resumeUrl && (
+              {app.resume && (
                 <a
-                  href={app.resumeUrl}
+                  href={`https://job-portal-backend-deploy.onrender.com/${app.resume}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn view-btn"
@@ -68,6 +79,7 @@ const ApplicationDashboard = () => {
                 </a>
               )}
             </div>
+
           </div>
         ))
       )}
