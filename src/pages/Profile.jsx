@@ -47,22 +47,21 @@ const Profile = () => {
 
       const { data } = await axios.put(`${API_URL}/users/profile`, formData, config);
 
-      // ✅ Fix: preserve all fields including skills
+      // ✅ Ensure all fields are updated correctly, even if backend skips some
       const updatedUser = {
-        name: data.name || formData.name,
-        email: data.email || formData.email,
-        contact: data.contact || formData.contact,
-        skills: data.skills !== undefined ? data.skills : formData.skills,
-        experience: data.experience || formData.experience,
-        education: data.education || formData.education
+        name: data.name ?? formData.name,
+        email: data.email ?? formData.email,
+        contact: data.contact ?? formData.contact,
+        skills: data.skills ?? formData.skills,         // fix for skills field
+        experience: data.experience ?? formData.experience,
+        education: data.education ?? formData.education
       };
 
-      // Update context and localStorage
       setUser(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      setFormData(updatedUser); // update form so fields are not blank
       setSuccess("Profile updated successfully!");
+      setFormData(updatedUser); // <- ensures fields display updated values
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Failed to update profile");
