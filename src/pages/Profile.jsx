@@ -18,6 +18,7 @@ const Profile = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Initialize form data from context user
   useEffect(() => {
     if (user) {
       setFormData({
@@ -41,16 +42,24 @@ const Profile = () => {
     setSuccess("");
 
     try {
-      const config = {
-        headers: { Authorization: `Bearer ${token}` },
-      };
-
+      const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.put(`${API_URL}/users/profile`, formData, config);
-      
-      // ✅ Update context and localStorage
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
-      
+
+      // Merge returned data with existing user to avoid blank page
+      const updatedUser = { ...user, ...data };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      // Update form fields immediately after successful update
+      setFormData({
+        name: updatedUser.name || "",
+        email: updatedUser.email || "",
+        contact: updatedUser.contact || "",
+        skills: updatedUser.skills || "",
+        experience: updatedUser.experience || "",
+        education: updatedUser.education || ""
+      });
+
       setSuccess("Profile updated successfully!");
     } catch (err) {
       console.error(err);
