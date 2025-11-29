@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "../context/UserContext";
 import { Link } from "react-router-dom";
+import "../styles/style.css"; // keep your existing styles
 
 const ApplicationsDashboard = () => {
-  const { user } = useUser();
+  const { user, token } = useUser();
   const [applications, setApplications] = useState([]);
 
   useEffect(() => {
@@ -12,28 +13,26 @@ const ApplicationsDashboard = () => {
       try {
         const res = await axios.get(
           "https://job-portal-backend-deploy.onrender.com/api/applications/me",
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-
         setApplications(res.data);
       } catch (error) {
-        console.log("Error fetching applications", error);
+        console.error("Error fetching applications:", error);
       }
     };
 
     fetchApplications();
-  }, []);
+  }, [token]);
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(
         `https://job-portal-backend-deploy.onrender.com/api/applications/${id}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
       setApplications(applications.filter((app) => app._id !== id));
     } catch (error) {
-      console.log("Error deleting application", error);
+      console.error("Error deleting application:", error);
     }
   };
 
@@ -66,7 +65,7 @@ const ApplicationsDashboard = () => {
 
               {app.resume && (
                 <a
-                  href={app.resume} // <-- use URL as stored in MongoDB
+                  href={app.resume} // Open resume from Cloudinary
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn view-btn"

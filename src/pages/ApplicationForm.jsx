@@ -23,9 +23,9 @@ const ApplicationForm = ({ jobId }) => {
       const formData = new FormData();
       formData.append("name", name);
       formData.append("email", email);
-      formData.append("resume", resume);
+      formData.append("resume", resume); // ✅ send file
 
-      await axios.post(
+      const response = await axios.post(
         `https://job-portal-backend-deploy.onrender.com/api/applications/${jobId}`,
         formData,
         {
@@ -36,8 +36,11 @@ const ApplicationForm = ({ jobId }) => {
         }
       );
 
-      setSuccess("Application submitted successfully");
-      setError("");
+      if (response.status === 201) {
+        setSuccess("Application submitted successfully");
+        setError("");
+        setResume(null);
+      }
     } catch (err) {
       console.error("Error submitting application:", err);
       setError(err.response?.data?.message || "Failed to submit application");
@@ -53,16 +56,32 @@ const ApplicationForm = ({ jobId }) => {
       {success && <p style={{ color: "green" }}>{success}</p>}
 
       <form onSubmit={handleSubmit}>
-        <input type="text" placeholder="Your Name" value={name}
-          onChange={(e) => setName(e.target.value)} required />
+        <input
+          type="text"
+          placeholder="Your Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
 
-        <input type="email" placeholder="Your Email" value={email}
-          onChange={(e) => setEmail(e.target.value)} required />
+        <input
+          type="email"
+          placeholder="Your Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-        <input type="file" accept=".pdf,.doc,.docx"
-          onChange={(e) => setResume(e.target.files[0])} required />
+        <input
+          type="file"
+          accept=".pdf,.doc,.docx"
+          onChange={(e) => setResume(e.target.files[0])}
+          required
+        />
 
-        <button type="submit" className="btn">Submit Application</button>
+        <button type="submit" className="btn">
+          Submit Application
+        </button>
       </form>
     </div>
   );
