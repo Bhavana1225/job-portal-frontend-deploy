@@ -23,7 +23,7 @@ const ApplicationForm = ({ jobId }) => {
       const formData = new FormData();
       formData.append("name", name);
       formData.append("email", email);
-      formData.append("resume", resume); // ✅ send file
+      formData.append("resume", resume); // name must match multer field
 
       const response = await axios.post(
         `https://job-portal-backend-deploy.onrender.com/api/applications/${jobId}`,
@@ -74,6 +74,7 @@ const ApplicationForm = ({ jobId }) => {
 
         <input
           type="file"
+          name="resume" // must match Multer field
           accept=".pdf,.doc,.docx"
           onChange={(e) => setResume(e.target.files[0])}
           required
