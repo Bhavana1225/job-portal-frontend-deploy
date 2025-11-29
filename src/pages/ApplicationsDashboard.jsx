@@ -63,16 +63,7 @@ const ApplicationsDashboard = () => {
                 Delete
               </button>
 
-              {app.resume && (
-                <a
-                  href={app.resume} // Open resume from Cloudinary
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn view-btn"
-                >
-                  View Resume
-                </a>
-              )}
+              
             </div>
           </div>
         ))
