@@ -45,20 +45,21 @@ const Profile = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.put(`${API_URL}/users/profile`, formData, config);
 
-      // Merge returned data with existing user to avoid blank page
-      const updatedUser = { ...user, ...data };
+      // Update context and localStorage
+      const updatedUser = {
+        name: data.name || formData.name,
+        email: data.email || formData.email,
+        contact: data.contact || formData.contact,
+        skills: data.skills || formData.skills,
+        experience: data.experience || formData.experience,
+        education: data.education || formData.education
+      };
+
       setUser(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // Update form fields immediately after successful update
-      setFormData({
-        name: updatedUser.name || "",
-        email: updatedUser.email || "",
-        contact: updatedUser.contact || "",
-        skills: updatedUser.skills || "",
-        experience: updatedUser.experience || "",
-        education: updatedUser.education || ""
-      });
+      // Update formData to reflect changes
+      setFormData(updatedUser);
 
       setSuccess("Profile updated successfully!");
     } catch (err) {
