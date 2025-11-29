@@ -109,18 +109,7 @@ const EditApplication = () => {
           required
         />
 
-        {formData.existingResume && (
-          <p>
-            <strong>Current Resume: </strong>
-            <a
-              href={formData.existingResume} // <-- fix: use full URL from MongoDB
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View Uploaded Resume
-            </a>
-          </p>
-        )}
+        
 
         <input
           type="file"
