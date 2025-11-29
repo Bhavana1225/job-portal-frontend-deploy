@@ -18,7 +18,6 @@ const Profile = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Initialize form data from context user
   useEffect(() => {
     if (user) {
       setFormData({
@@ -42,25 +41,27 @@ const Profile = () => {
     setSuccess("");
 
     try {
-      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+
       const { data } = await axios.put(`${API_URL}/users/profile`, formData, config);
 
-      // Update context and localStorage
+      // ✅ Fix: preserve all fields including skills
       const updatedUser = {
         name: data.name || formData.name,
         email: data.email || formData.email,
         contact: data.contact || formData.contact,
-        skills: data.skills || formData.skills,
+        skills: data.skills !== undefined ? data.skills : formData.skills,
         experience: data.experience || formData.experience,
         education: data.education || formData.education
       };
 
+      // Update context and localStorage
       setUser(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // Update formData to reflect changes
-      setFormData(updatedUser);
-
+      setFormData(updatedUser); // update form so fields are not blank
       setSuccess("Profile updated successfully!");
     } catch (err) {
       console.error(err);
